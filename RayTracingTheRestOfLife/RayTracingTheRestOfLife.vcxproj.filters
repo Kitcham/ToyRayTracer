@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="头文件\material">
+      <UniqueIdentifier>{516ac58b-1990-4105-8698-6314d3c9045a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\utils">
+      <UniqueIdentifier>{7092710b-4c09-4cf3-b1bd-3aee467ddfc9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\objects">
+      <UniqueIdentifier>{815bfbdf-8371-4c4b-9968-2be0fdda6662}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="aabb.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="box.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="bvh.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="diffuse_light.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="perlin.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="dielectric.h">
+      <Filter>头文件\material</Filter>
+    </ClInclude>
+    <ClInclude Include="metal.h">
+      <Filter>头文件\material</Filter>
+    </ClInclude>
+    <ClInclude Include="isotropic.h">
+      <Filter>头文件\material</Filter>
+    </ClInclude>
+    <ClInclude Include="lambertian.h">
+      <Filter>头文件\material</Filter>
+    </ClInclude>
+    <ClInclude Include="material.h">
+      <Filter>头文件\material</Filter>
+    </ClInclude>
+    <ClInclude Include="rtweekend.h">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="rtw_stb_image.h">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image_write.h">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="vec3.h">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ray.h">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="sphere.h">
+      <Filter>头文件\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="moving_sphere.h">
+      <Filter>头文件\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="constant_medium.h">
+      <Filter>头文件\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="intersect.h">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="intersect_list.h">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="triangle.h">
+      <Filter>头文件\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="TriangleMesh.h">
+      <Filter>头文件\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="TriMesh.h">
+      <Filter>头文件\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="color.h">
+      <Filter>头文件\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="aarect.h">
+      <Filter>头文件\objects</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main1.0.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
