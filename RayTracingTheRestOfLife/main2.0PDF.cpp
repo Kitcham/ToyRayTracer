@@ -268,7 +268,8 @@ intersectList final_scene() {
 }
 
 
-color ray_color(const ray& r, const color& background, const intersect& world, int depth) {
+color ray_color(const ray& r, const color& background, const intersect& world, shared_ptr<intersect>& lights, int depth) 
+{
     hitRecord rec;
 
     // If we've exceeded the ray bounce limit, no more light is gathered.
@@ -309,15 +310,21 @@ color ray_color(const ray& r, const color& background, const intersect& world, i
     // 硬编码数学部分
     */
 
+    /*
     // 混合密度
     cosine_pdf p(rec.normal);
     scattered = ray(rec.p, p.generate(), r.time());
     pdf_val = p.value(scattered.direction());
     // 混合密度
+    */
+
+    intersect_pdf light_pdf(lights, rec.p);
+    scattered = ray(rec.p, light_pdf.generate(), r.time());
+    pdf_val = light_pdf.value(scattered.direction());
 
     return emitted
         + albedo * rec.material_ptr->scattering_pdf(r, rec, scattered)
-        * ray_color(scattered, background, world, depth - 1) / pdf_val;
+        * ray_color(scattered, background, world, lights, depth - 1) / pdf_val;
 }
 
 /*
@@ -348,7 +355,7 @@ vec3 ray_color(const ray& sight, const intersect& world, int depth)
 */
 
 void ThreadMainLoop(std::vector<vec3>& buffer, const intersect& world, const int Width, const int Height,
-    const int Samples, const int max_depth, const int numThreads, const int threadId, camera camera, vec3 background)
+    const int Samples, const int max_depth, const int numThreads, const int threadId, camera camera, vec3 background, shared_ptr<intersect> lights)
 {
     // Random random(threadId + 1);
 
@@ -365,7 +372,8 @@ void ThreadMainLoop(std::vector<vec3>& buffer, const intersect& world, const int
                 const float u = float(i + random_double()) / float(Width);
                 const float v = float(j + random_double()) / float(Height);
                 ray sight = camera.get_ray(u, v);
-                pixel_color = pixel_color + ray_color(sight, background, world, max_depth);
+                //pixel_color = pixel_color + ray_color(sight, background, world, max_depth);
+                pixel_color = pixel_color + ray_color(sight, background, world, lights, max_depth);
             }
 
             //buffer[j * Width + i] = Clamp(sqrt(color / float(Samples)) * 255.99f, vec3(0.0f), vec3(255.0f));
@@ -376,7 +384,7 @@ void ThreadMainLoop(std::vector<vec3>& buffer, const intersect& world, const int
 }
 
 void MultiThreadedRayTracing(std::vector<vec3>& buffer, const intersect& world, const int Width, const int Height,
-    const int Samples, const int max_depth, camera camera, vec3 background)
+    const int Samples, const int max_depth, camera camera, vec3 background, shared_ptr<intersect> lights)
 {
     const int numThreads = std::max(1, static_cast<int>(std::thread::hardware_concurrency()) - 2);
     std::vector<std::thread> threads;
@@ -387,7 +395,7 @@ void MultiThreadedRayTracing(std::vector<vec3>& buffer, const intersect& world, 
     {
         threads.emplace_back([=, &buffer, &world]()
             {
-                ThreadMainLoop(buffer, world, Width, Height, Samples, max_depth, numThreads, t, camera, background);
+                ThreadMainLoop(buffer, world, Width, Height, Samples, max_depth, numThreads, t, camera, background, lights);
             });
     }
 
@@ -423,12 +431,12 @@ void OutputFramebuffer(const std::vector<vec3>& buffer, const int Width, const i
 
 
 void Application(int Width, int Height, int samples_per_pixel, intersectList World,
-    const int max_depth, camera camera, vec3 background)
+    const int max_depth, camera camera, vec3 background, shared_ptr<intersect> lights)
 {
 
     std::vector<vec3> buffer(Width * Height);
 
-    MultiThreadedRayTracing(buffer, World, Width, Height, samples_per_pixel, max_depth, camera, background);
+    MultiThreadedRayTracing(buffer, World, Width, Height, samples_per_pixel, max_depth, camera, background, lights);
     OutputFramebuffer(buffer, Width, Height, samples_per_pixel);
 }
 
@@ -550,6 +558,10 @@ int main() {
         vfov = 40.0;
         break;
     }
+
+    shared_ptr<intersect> lights =
+        make_shared<xz_rect>(213, 343, 227, 332, 554, shared_ptr<material>());
+
     // camera参数最终敲定
     auto time_0 = 0.0;
     auto time_1 = 1.0;
@@ -586,7 +598,7 @@ int main() {
     try
     {
         Application(image_width, image_height, samples_per_pixel, world,
-            max_depth, camera, background);
+            max_depth, camera, background, lights);
         std::cerr << "\nDone.\n";
 
         return EXIT_SUCCESS;
