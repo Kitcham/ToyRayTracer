@@ -15,7 +15,7 @@ public:
 
     virtual bool scatter(
         const ray& r_in, const hitRecord& rec, color& attenuation, ray& scattered
-    ) const override {
+    ) const {
         scattered = ray(rec.p, random_in_unit_sphere(), r_in.time());
         attenuation = albedo->value(rec.u, rec.v, rec.p);
         return true;

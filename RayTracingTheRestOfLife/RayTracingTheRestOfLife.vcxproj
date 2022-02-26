@@ -146,15 +146,23 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="constant_medium.h" />
-    <ClInclude Include="dielectric.h" />
+    <ClInclude Include="dielectric.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="diffuse_light.h" />
     <ClInclude Include="intersect.h" />
     <ClInclude Include="intersect_list.h" />
-    <ClInclude Include="isotropic.h" />
+    <ClInclude Include="isotropic.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="lambertian.h" />
     <ClInclude Include="material.h" />
-    <ClInclude Include="metal.h" />
+    <ClInclude Include="metal.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="moving_sphere.h" />
+    <ClInclude Include="ONB.h" />
+    <ClInclude Include="PDF.h" />
     <ClInclude Include="perlin.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="rtweekend.h" />
@@ -169,7 +177,13 @@
     <ClInclude Include="vec3.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="main0.0.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="main1.0.cpp" />
+    <ClCompile Include="objtest.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

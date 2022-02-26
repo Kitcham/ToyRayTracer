@@ -15,7 +15,6 @@
 #include "box.h"
 #include "constant_medium.h"
 #include "isotropic.h"
-#include "diffuse_light.h"
 
 #include <iostream>
 #include <memory>
@@ -25,7 +24,6 @@
 
 #include <limits>
 #include <thread>
-
 
 
 intersectList earth() {
@@ -72,7 +70,7 @@ intersectList random_scene() {
 
     /*
     * 运动的计算，球由C位置线性运动到 C + (0, r/2, 0), r∈[0,1)
-
+    
     */
 
     for (int a = -11; a < 11; a++) {
@@ -80,11 +78,11 @@ intersectList random_scene() {
             auto choose_mat = random_double();
             point3 center(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double());
 
-            if ((center - point3(4, 0.2, 0)).length() > 0.9)
+            if ((center - point3(4, 0.2, 0)).length() > 0.9) 
             {
                 shared_ptr<material> sphere_material;
 
-                if (choose_mat < 0.8)
+                if (choose_mat < 0.8) 
                 {
                     // 漫反射
                     auto albedo = color::random() * color::random();
@@ -93,7 +91,7 @@ intersectList random_scene() {
                     world.add(make_shared<moving_sphere>(
                         center, center2, 0.0, 1.0, 0.2, sphere_material));
                 }
-                else if (choose_mat < 0.95)
+                else if (choose_mat < 0.95) 
                 {
                     // 金属球
                     auto albedo = color::random(0.5, 1);
@@ -102,7 +100,7 @@ intersectList random_scene() {
                     sphere_material = make_shared<metal>(albedo, fuzz);
                     world.add(make_shared<sphere>(center, 0.2, sphere_material));
                 }
-                else
+                else 
                 {
                     // 玻璃球
                     sphere_material = make_shared<dielectric>(1.5);
@@ -153,12 +151,12 @@ intersectList cornell_box() {
 
     objects.add(make_shared<yz_rect>(0, 555, 0, 555, 555, green));
     objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
-    //objects.add(make_shared<xz_rect>(213, 343, 227, 332, 554, light));  // 未设置单向的灯光
-    objects.add(make_shared<flip_face>(make_shared<xz_rect>(213, 343, 227, 332, 554, light)));
-    objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
+    objects.add(make_shared<xz_rect>(213, 343, 227, 332, 554, light));
     objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
+    objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
     objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
 
+    // 尝试加入长方体
     shared_ptr<intersect> box1 = make_shared<box>(point3(0, 0, 0), point3(165, 330, 165), white);
     box1 = make_shared<rotate_y>(box1, 15);
     box1 = make_shared<translate>(box1, vec3(265, 0, 295));
@@ -280,35 +278,12 @@ color ray_color(const ray& r, const color& background, const intersect& world, i
 
     ray scattered;
     color attenuation;
-    color emitted = rec.material_ptr->emitted(r, rec, rec.u, rec.v, rec.p);
+    color emitted = rec.material_ptr->emitted(rec.u, rec.v, rec.p);
 
-    double pdf;
-    color albedo;
-
-    if (!rec.material_ptr->scatter(r, rec, albedo, scattered, pdf))
+    if (!rec.material_ptr->scatter(r, rec, attenuation, scattered))
         return emitted;
 
-    // 硬编码数学部分
-    auto on_light = point3(random_double(213, 343), 554, random_double(227, 332));
-    auto to_light = on_light - rec.p;
-    auto distance_squared = to_light.length_squared();
-    to_light = unit_vector(to_light);
-
-    if (dot(to_light, rec.normal) < 0)
-        return emitted;
-
-    double light_area = (343 - 213) * (332 - 227);
-    auto light_cosine = fabs(to_light.y());
-    if (light_cosine < 0.000001)
-        return emitted;
-
-    pdf = distance_squared / (light_cosine * light_area);
-    scattered = ray(rec.p, to_light, r.time());
-    // 硬编码数学部分
-
-    return emitted
-        + albedo * rec.material_ptr->scattering_pdf(r, rec, scattered)
-        * ray_color(scattered, background, world, depth - 1) / pdf;
+    return emitted + attenuation * ray_color(scattered, background, world, depth - 1);
 }
 
 /*
@@ -338,14 +313,14 @@ vec3 ray_color(const ray& sight, const intersect& world, int depth)
 }
 */
 
-void ThreadMainLoop(std::vector<vec3>& buffer, const intersect& world, const int Width, const int Height,
+void ThreadMainLoop(std::vector<vec3>& buffer, const intersect& world, const int Width, const int Height, 
     const int Samples, const int max_depth, const int numThreads, const int threadId, camera camera, vec3 background)
 {
     // Random random(threadId + 1);
 
     for (int j = Height - threadId - 1; j >= 0; j -= numThreads)
     {
-        std::cerr << "ThreadId " << threadId << " remains scanlines " << j << std::endl;
+        std::cerr << "ThreadId " << threadId << " remains scanlines " << j <<  std::endl;
 
         for (int i = 0; i < Width; ++i)
         {
@@ -356,11 +331,11 @@ void ThreadMainLoop(std::vector<vec3>& buffer, const intersect& world, const int
                 const float u = float(i + random_double()) / float(Width);
                 const float v = float(j + random_double()) / float(Height);
                 ray sight = camera.get_ray(u, v);
-                pixel_color = pixel_color + ray_color(sight, background, world, max_depth);
+                pixel_color = pixel_color + ray_color(sight, background, world, max_depth);       
             }
 
             //buffer[j * Width + i] = Clamp(sqrt(color / float(Samples)) * 255.99f, vec3(0.0f), vec3(255.0f));
-            buffer[j * Width + i] = pixel_color;
+            buffer[j * Width + i] = pixel_color; 
             // float(Samples)) * 255.99f, vec3(0.0f), vec3(255.0f));
         }
     }
@@ -406,14 +381,14 @@ void OutputFramebuffer(const std::vector<vec3>& buffer, const int Width, const i
             g = sqrt(scale * color.y());
             b = sqrt(scale * color.z());
             std::cout << static_cast<int>(256 * clamp(r, 0.0, 0.999)) << " "
-                << static_cast<int>(256 * clamp(g, 0.0, 0.999)) << " "
-                << static_cast<int>(256 * clamp(b, 0.0, 0.999)) << "\n";
+                      << static_cast<int>(256 * clamp(g, 0.0, 0.999)) << " "
+                      << static_cast<int>(256 * clamp(b, 0.0, 0.999)) << "\n";
         }
     }
 }
 
 
-void Application(int Width, int Height, int samples_per_pixel, intersectList World,
+void Application(int Width, int Height, int samples_per_pixel, intersectList World, 
     const int max_depth, camera camera, vec3 background)
 {
 
@@ -459,7 +434,7 @@ int main() {
     //   亦涉及到一些camera参数的变更
     intersectList world;
 
-    switch (6) {
+    switch (0) {
     case 1:   // 随机球
         world = random_scene();
         image_width = 1200;
@@ -512,7 +487,7 @@ int main() {
         world = cornell_box();
         aspect_ratio = 1.0;
         image_width = 600;
-        samples_per_pixel = 10;
+        samples_per_pixel = 200;
         background = color(0, 0, 0);
         lookfrom = point3(278, 278, -800);
         lookat = point3(278, 278, 0);
@@ -552,7 +527,7 @@ int main() {
     image_height = static_cast<int>(image_width / aspect_ratio);
     /*
     std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
-
+    
     for (int j = image_height - 1; j >= 0; --j)
     {
         std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
