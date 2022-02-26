@@ -9,6 +9,7 @@
 #include "material.h"
 #include "texture.h"
 #include "ONB.h"
+#include "PDF.h"
 
 /*
     class：lambertian 朗伯体（完全漫反射体）
