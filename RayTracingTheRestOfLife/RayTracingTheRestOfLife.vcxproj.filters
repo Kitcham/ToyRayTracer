@@ -36,9 +36,6 @@
     <ClInclude Include="camera.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="diffuse_light.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="perlin.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -108,8 +105,23 @@
     <ClInclude Include="aarect.h">
       <Filter>头文件\objects</Filter>
     </ClInclude>
+    <ClInclude Include="diffuse_light.h">
+      <Filter>头文件\material</Filter>
+    </ClInclude>
+    <ClInclude Include="ONB.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PDF.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="main0.0.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="objtest.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="main1.0.cpp">
       <Filter>源文件</Filter>
     </ClCompile>

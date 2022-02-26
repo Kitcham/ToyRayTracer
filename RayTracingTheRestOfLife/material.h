@@ -6,6 +6,7 @@
 #include "vec3.h"
 #include "intersect.h"
 #include "texture.h"
+#include "intersect_list.h"
 
 /*
     class£ºmaterial ²ÄÖÊ»ùÀà
@@ -19,33 +20,26 @@ struct hitRecord;
 class material {
 public:
     virtual bool scatter (
-        const ray& r_in, const hitRecord& rec, color& attenuation, ray& scattered
-    ) const = 0;
-
-    virtual color emitted(double u, double v, const point3& p) const {
-        return color(0, 0, 0);
-    }
-};
-
-class diffuse_light : public material {
-public:
-    diffuse_light(shared_ptr<texture> a) : emit(a) {}
-    diffuse_light(color c) : emit(make_shared<solid_color>(c)) {}
-
-    virtual bool scatter(
-        const ray& r_in, const hitRecord& rec, color& attenuation, ray& scattered
-    ) const override {
+        //const ray& r_in, const hitRecord& rec, color& attenuation, ray& scattered
+        const ray& r_in, const hitRecord& rec, color& albedo, ray& scattered, double& pdf
+    ) const 
+    {
         return false;
     }
 
-    virtual color emitted(double u, double v, const point3& p) const override {
-        return emit->value(u, v, p);
+    virtual double scattering_pdf(
+        const ray& r_in, const hitRecord& rec, const ray& scattered
+    ) const 
+    {
+        return 0;
     }
 
-public:
-    shared_ptr<texture> emit;
+    virtual color emitted(const ray& r_in, const hitRecord& rec, double u, double v, const point3& p
+    ) const 
+    {
+        return color(0, 0, 0);
+    }
 };
-
 
 
 #endif

@@ -183,4 +183,27 @@ bool rotate_y::hit(const ray& r, double t_min, double t_max, hitRecord& rec) con
 	return true;
 }
 
+// 翻转灯光，使其法线指向 -y 方向:
+class flip_face : public intersect {
+public:
+	flip_face(shared_ptr<intersect> p) : ptr(p) {}
+
+	virtual bool hit(
+		const ray& r, double t_min, double t_max, hitRecord& rec) const override {
+
+		if (!ptr->hit(r, t_min, t_max, rec))
+			return false;
+
+		rec.frontFace = !rec.frontFace;
+		return true;
+	}
+
+	virtual bool bounding_box(double time0, double time1, aabb& output_box) const override {
+		return ptr->bounding_box(time0, time1, output_box);
+	}
+
+public:
+	shared_ptr<intersect> ptr;
+};
+
 #endif    //INTERSECT_H

@@ -18,7 +18,7 @@ public:
 
     virtual bool scatter(
         const ray& r_in, const hitRecord& rec, color& attenuation, ray& scattered
-    ) const override {
+    ) const {
         attenuation = color(1.0, 1.0, 1.0);
         double refraction_ratio = rec.frontFace ? (1.0 / ir) : ir;
 
