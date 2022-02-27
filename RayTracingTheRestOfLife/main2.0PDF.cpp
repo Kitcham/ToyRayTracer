@@ -318,9 +318,22 @@ color ray_color(const ray& r, const color& background, const intersect& world, s
     // 混合密度
     */
 
+
+    /*对intersect光照方向采样
     intersect_pdf light_pdf(lights, rec.p);
     scattered = ray(rec.p, light_pdf.generate(), r.time());
     pdf_val = light_pdf.value(scattered.direction());
+    */
+
+    // 混合概率密度
+    // P0与光的形状相关
+    // P1与与表面的法向量和类型有关
+    auto p0 = make_shared<intersect_pdf>(lights, rec.p);
+    auto p1 = make_shared<cosine_pdf>(rec.normal);
+    mixture_pdf mixed_pdf(p0, p1);
+
+    scattered = ray(rec.p, mixed_pdf.generate(), r.time());
+    pdf_val = mixed_pdf.value(scattered.direction());
 
     return emitted
         + albedo * rec.material_ptr->scattering_pdf(r, rec, scattered)
@@ -529,7 +542,7 @@ int main() {
         world = cornell_box();
         aspect_ratio = 1.0;
         image_width = 600;
-        samples_per_pixel = 10;
+        samples_per_pixel = 1000; //200
         background = color(0, 0, 0);
         lookfrom = point3(278, 278, -800);
         lookat = point3(278, 278, 0);
@@ -540,7 +553,7 @@ int main() {
         world = cornell_smoke();
         aspect_ratio = 1.0;
         image_width = 600;
-        samples_per_pixel = 200;
+        samples_per_pixel = 200; //200
         lookfrom = point3(278, 278, -800);
         lookat = point3(278, 278, 0);
         vfov = 40.0;
