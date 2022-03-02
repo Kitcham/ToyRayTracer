@@ -114,6 +114,9 @@
     <ClInclude Include="PDF.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="intersect_pdf.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main0.0.cpp">
@@ -129,6 +132,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="main3.0PDF清理.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="main3.0清理pdf.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="单线程测试.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

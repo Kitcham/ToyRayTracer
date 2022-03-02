@@ -26,6 +26,9 @@ public:
     virtual bool bounding_box(
         double time0, double time1, aabb& output_box) const override;
 
+    virtual double pdf_value(const vec3& o, const vec3& v) const override;
+    virtual vec3 random(const vec3& o) const override;
+
 public:
     std::vector<shared_ptr<intersect>> objects;
 };
@@ -35,8 +38,8 @@ bool intersectList::hit(const ray& r, double tMin, double tMax, hitRecord& rec) 
     hitRecord tempRec;
     bool hitAnything = false;
     auto closestSoFar = tMax;  //刚开始可以看到无限远
-
-    for (const auto& object : objects) 
+    //shared_ptr<intersect>
+    for (const auto& object : objects)
     {
         if (object->hit(r, tMin, closestSoFar, tempRec)) 
         {
@@ -62,6 +65,21 @@ bool intersectList::bounding_box(double time0, double time1, aabb& output_box) c
     }
 
     return true;
+}
+
+double intersectList::pdf_value(const point3& o, const vec3& v) const {
+    auto weight = 1.0 / objects.size();
+    auto sum = 0.0;
+
+    for (const auto& object : objects)
+        sum += weight * object->pdf_value(o, v);
+
+    return sum;
+}
+
+vec3 intersectList::random(const vec3& o) const {
+    auto int_size = static_cast<int>(objects.size());
+    return objects[random_int(0, int_size - 1)]->random(o);
 }
 
 #endif

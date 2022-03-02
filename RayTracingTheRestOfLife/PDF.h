@@ -1,17 +1,11 @@
 #ifndef PDF_H
 #define PDF_H
 
-#include "vec3.h"
+//#include "vec3.h"
 #include "ONB.h"
+#include "intersect.h"
+#include "rtweekend.h"
 
-class pdf
-{
-public:
-    virtual ~pdf() {}
-
-    virtual double value(const vec3& direction) const = 0;
-    virtual vec3 generate() const = 0;
-};
 
 inline vec3 random_cosine_direction() {
     auto r1 = random_double();
@@ -24,6 +18,27 @@ inline vec3 random_cosine_direction() {
 
     return vec3(x, y, z);
 }
+
+inline vec3 random_to_sphere(double radius, double distance_squared) {
+    auto r1 = random_double();
+    auto r2 = random_double();
+    auto z = 1 + r2 * (sqrt(1 - radius * radius / distance_squared) - 1);
+
+    auto phi = 2 * pi * r1;
+    auto x = cos(phi) * sqrt(1 - z * z);
+    auto y = sin(phi) * sqrt(1 - z * z);
+
+    return vec3(x, y, z);
+}
+
+class pdf
+{
+public:
+    virtual ~pdf() {}
+
+    virtual double value(const vec3& direction) const = 0;
+    virtual vec3 generate() const = 0;
+};
 
 class cosine_pdf : public pdf {
 public:
@@ -42,25 +57,8 @@ public:
     onb uvw;
 };
 
-/*
-* 对可求交物体的方向进行采样，如光源等
-*/
-class intersect_pdf : public pdf {
-public:
-    intersect_pdf(shared_ptr<intersect> p, const point3& origin) : ptr(p), o(origin) {}
 
-    virtual double value(const vec3& direction) const override {
-        return ptr->pdf_value(o, direction);
-    }
 
-    virtual vec3 generate() const override {
-        return ptr->random(o);
-    }
-
-public:
-    point3 o;
-    shared_ptr<intersect> ptr;
-};
 
 class mixture_pdf : public pdf {
 public:
