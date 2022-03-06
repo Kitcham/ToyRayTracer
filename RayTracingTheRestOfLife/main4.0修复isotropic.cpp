@@ -204,6 +204,7 @@ intersectList cornell_box() {
     return objects;
 }
 
+/*PDF修复前
 intersectList cornell_smoke() {
     intersectList objects;
 
@@ -214,7 +215,8 @@ intersectList cornell_smoke() {
 
     objects.add(make_shared<yz_rect>(0, 555, 0, 555, 555, green));
     objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
-    objects.add(make_shared<xz_rect>(113, 443, 127, 432, 554, light));
+    //objects.add(make_shared<xz_rect>(113, 443, 127, 432, 554, light));
+    objects.add(make_shared<flip_face>(make_shared<xz_rect>(213, 343, 227, 332, 554, light)));
     objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
     objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
     objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
@@ -232,6 +234,41 @@ intersectList cornell_smoke() {
 
     return objects;
 }
+*/
+
+intersectList cornell_smoke() {
+    intersectList objects;
+
+    auto red = make_shared<lambertian>(color(.65, .05, .05));
+    auto white = make_shared<lambertian>(color(.73, .73, .73));
+    auto green = make_shared<lambertian>(color(.12, .45, .15));
+    auto light = make_shared<diffuse_light>(color(15, 15, 15));
+
+    objects.add(make_shared<yz_rect>(0, 555, 0, 555, 555, green));
+    objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
+    objects.add(make_shared<flip_face>(make_shared<xz_rect>(213, 343, 227, 332, 554, light)));
+    //objects.add(make_shared<xz_rect>(113, 443, 127, 432, 554, light));
+    objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
+    objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
+    objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
+
+    shared_ptr<intersect> box1 = make_shared<box>(point3(0, 0, 0), point3(165, 330, 165), white);
+    box1 = make_shared<rotate_y>(box1, 15);
+    box1 = make_shared<translate>(box1, vec3(265, 0, 295));
+
+    shared_ptr<intersect> box2 = make_shared<box>(point3(0, 0, 0), point3(165, 165, 165), white);
+    box2 = make_shared<rotate_y>(box2, -18);
+    box2 = make_shared<translate>(box2, vec3(130, 0, 65));
+
+    objects.add(make_shared<constant_medium>(box1, 0.01, color(0, 0, 0)));
+    objects.add(make_shared<constant_medium>(box2, 0.01, color(1, 1, 1)));
+
+    auto glass = make_shared<dielectric>(1.5);
+    objects.add(make_shared<sphere>(point3(420, 90, 190), 90, glass));
+
+    return objects;
+}
+
 
 
 
@@ -332,7 +369,7 @@ color ray_color(const ray& r, const color& background, const intersect& world, s
 
     return emitted
         + srec.attenuation * rec.material_ptr->scattering_pdf(r, rec, scattered)
-        * ray_color(scattered, background, world, lights, depth - 1) 
+        * ray_color(scattered, background, world, lights, depth - 1)
         / pdf_val;
 }
 
@@ -491,12 +528,12 @@ int main() {
     color background(0, 0, 0);
 
 
-    
+
     // World
     //   亦涉及到一些camera参数的变更
     intersectList world;
 
-    switch (6) {
+    switch (7) {
     case 1:   // 随机球
         world = random_scene();
         image_width = 1200;
@@ -559,19 +596,18 @@ int main() {
     case 7: // cornell_smoke带烟雾测试
         world = cornell_smoke();
         aspect_ratio = 1.0;
-        image_width = 600;
+        image_width = 60;
         samples_per_pixel = 100; //200
         lookfrom = point3(278, 278, -800);
         lookat = point3(278, 278, 0);
         vfov = 40.0;
         break;
-
     default:
     case 8: // 最终场景
         world = final_scene();
         aspect_ratio = 1.0; //16.9
         image_width = 800; //800
-        samples_per_pixel = 10; //10000
+        samples_per_pixel = 100; //10000
         background = color(0, 0, 0);
         lookfrom = point3(478, 278, -600);
         lookat = point3(278, 278, 0);
@@ -593,8 +629,11 @@ int main() {
     lights.add(make_shared<sphere>(point3(190, 90, 190), 90, 0));
     */
 
+    //lights->add(make_shared<xz_rect>(213, 343, 227, 332, 554, shared_ptr<material>()));
+    //lights->add(make_shared<sphere>(point3(190, 90, 190), 90, shared_ptr<material>()));
+    
+    // 烟雾盒
     lights->add(make_shared<xz_rect>(213, 343, 227, 332, 554, shared_ptr<material>()));
-    lights->add(make_shared<sphere>(point3(190, 90, 190), 90, shared_ptr<material>()));
 
     // camera参数最终敲定
     auto time_0 = 0.0;

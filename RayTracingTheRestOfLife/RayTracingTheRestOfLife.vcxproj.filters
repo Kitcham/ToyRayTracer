@@ -140,5 +140,8 @@
     <ClCompile Include="单线程测试.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="main4.0修复isotropic.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
