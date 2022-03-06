@@ -5,6 +5,7 @@
 #include "rtweekend.h"
 #include "material.h"
 #include "aabb.h"
+#include "onb.h"
 
 /*
 	Class:intersect 记录相交容器
@@ -55,6 +56,17 @@ class intersect
 		virtual ~intersect() {  }
 
 		virtual bool bounding_box(double time0, double time1, aabb& output_box) const = 0;
+
+		// 避免对所有intersect子类进行pdf检测，使用虚函数
+		virtual double pdf_value(const point3& o, const vec3& v) const 
+		{
+			return 0.0;
+		}
+
+		virtual vec3 random(const vec3& o) const 
+		{
+			return vec3(1, 0, 0);
+		}
 		
 };
 

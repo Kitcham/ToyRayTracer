@@ -40,6 +40,7 @@ void onb::build_from_w(const vec3& n) {
     axis[0] = cross(w(), v());
 }
 
+/*
 inline vec3 random_cosine_direction() {
     auto r1 = random_double();
     auto r2 = random_double();
@@ -51,5 +52,6 @@ inline vec3 random_cosine_direction() {
 
     return vec3(x, y, z);
 }
+*/
 
 #endif

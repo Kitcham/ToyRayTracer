@@ -7,6 +7,7 @@
 #include "intersect.h"
 #include "texture.h"
 #include "intersect_list.h"
+#include "PDF.h"
 
 /*
     class£ºmaterial ²ÄÖÊ»ùÀà
@@ -17,11 +18,19 @@
 
 struct hitRecord;
 
+struct scatterRecord {
+    ray specularRay;
+    bool isSpecular;
+    color attenuation;
+    shared_ptr<pdf> pdf_ptr;
+};
+
 class material {
 public:
     virtual bool scatter (
         //const ray& r_in, const hitRecord& rec, color& attenuation, ray& scattered
-        const ray& r_in, const hitRecord& rec, color& albedo, ray& scattered, double& pdf
+        //const ray& r_in, const hitRecord& rec, color& albedo, ray& scattered, double& pdf
+        const ray& r_in, const hitRecord& rec, scatterRecord& srec
     ) const 
     {
         return false;

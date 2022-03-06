@@ -15,7 +15,7 @@
 class dielectric : public material {
 public:
     dielectric(double index_of_refraction) : ir(index_of_refraction) {}
-
+    /*使用pdf前
     virtual bool scatter(
         const ray& r_in, const hitRecord& rec, color& attenuation, ray& scattered
     ) const {
@@ -24,10 +24,10 @@ public:
 
         
         vec3 unit_direction = unit_vector(r_in.direction());
-        /*
-        vec3 refracted = refract(unit_direction, rec.normal, refraction_ratio);
+        
+        //vec3 refracted = refract(unit_direction, rec.normal, refraction_ratio);
 
-        scattered = ray(rec.p, refracted);*/
+        //scattered = ray(rec.p, refracted);
 
         double cos_theta = ffmin(dot(-unit_direction, rec.normal), 1.0);
         double sin_theta = sqrt(1.0 - cos_theta * cos_theta);
@@ -49,6 +49,34 @@ public:
         scattered = ray(rec.p, direction, r_in.time());
         return true;
     }
+    */
+
+    virtual bool scatter(
+        const ray& r_in, const hitRecord& rec, scatterRecord& srec
+    ) const override {
+        srec.isSpecular = true;
+        srec.pdf_ptr = nullptr;
+        srec.attenuation = color(1.0, 1.0, 1.0);
+        double refraction_ratio = rec.frontFace ? (1.0 / ir) : ir;
+
+        vec3 unit_direction = unit_vector(r_in.direction());
+        double cos_theta = fmin(dot(-unit_direction, rec.normal), 1.0);
+        double sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+
+        bool cannot_refract = refraction_ratio * sin_theta > 1.0;
+        vec3 direction;
+
+        // 不可折射时，Sniff方程无解，认为发生了反射
+        if (cannot_refract || reflectance(cos_theta, refraction_ratio) > random_double())
+            direction = reflect(unit_direction, rec.normal);
+        else
+            direction = refract(unit_direction, rec.normal, refraction_ratio);
+
+        srec.specularRay = ray(rec.p, direction, r_in.time());
+        return true;
+    }
+
+
 
 public:
     double ir; // Index of Refraction

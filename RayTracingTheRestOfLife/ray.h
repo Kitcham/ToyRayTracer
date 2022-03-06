@@ -13,8 +13,12 @@ class ray
         ray() {}
         ray(const point3& origin, const vec3& direction)
             : orig(origin), dir(direction) {}
-        
+        /*
         ray(const point3& origin, const vec3& direction, double time = 0.0)
+            : orig(origin), dir(direction), tm(time)
+        {}
+        */
+        ray(const point3& origin, const vec3& direction, double time)
             : orig(origin), dir(direction), tm(time)
         {}
 
