@@ -3,8 +3,12 @@
 out vec4 FragColor;
 in vec2 texcoords;
 uniform sampler2D drawColor;
-
+uniform float exposure;
 void main(){
-	FragColor=vec4(texture(drawColor,texcoords).rgb,1.0f);
+	vec3 hdrColor=texture(drawColor,texcoords).rgb;
+	const float gamma = 2.2;
+	vec3 mapped = vec3(1.0) - exp(-hdrColor*exposure);
+	mapped = pow(mapped, vec3(1.0 / gamma));
+	FragColor = vec4(mapped, 1.0);
 }
 
