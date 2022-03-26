@@ -2,12 +2,14 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "camera.h"
-#include "mesh.h"
+
 #include "shader.h"
 #include "stb_image.h"
 #include "OpenRender.h"
 #include "Sphere.h"
 #include "Quad.h"
+using namespace std;
+
 extern unsigned int SCR_WIDTH = 1600;
 extern unsigned int SCR_HEIGHT = 900;
 void setQueue(OpenRender &render) {
@@ -18,7 +20,7 @@ void setQueue(OpenRender &render) {
 	sphere1 = make_shared<Sphere>();
 	sphere1->Creat();
 	sphere1->setTexture("texture/Earth.jpg");
-	sphere1->Matrial = 2;
+	sphere1->Matrial = 3;
 	sphere1->Color = glm::vec3(0.7, 0.7, 0.7);
 	shared_ptr<BasePartList>partList = make_shared<BasePartList>();
 	partList->PartList.push_back(sphere1);
@@ -40,7 +42,7 @@ void setQueue(OpenRender &render) {
 	shared_ptr<BasePart> quad2 = make_shared<Quad>();
 	quad2->Creat();
 	quad2->Matrial = 2;
-	quad2->Color = glm::vec3(0.1, 0.3, 0.4);
+	quad2->Color = glm::vec3(0.5, 0.5, 0.5);
 	partList->PartList.push_back(quad2);
 	partList->modelList.push_back(trans);
  
@@ -50,7 +52,7 @@ void setQueue(OpenRender &render) {
 	shared_ptr<BasePart> quad3 = make_shared<Quad>();
 	quad3->Creat();
 	quad3->Matrial = 2;
-	quad3->Color = glm::vec3(0.3, 0.1, 0.1);
+	quad3->Color = glm::vec3(0.5, 0.0, 0.0);
 	partList->PartList.push_back(quad3);
 	partList->modelList.push_back(trans);
 
@@ -70,9 +72,10 @@ void setQueue(OpenRender &render) {
 	shared_ptr<BasePart> quad5 = make_shared<Quad>();
 	quad5->Creat();
 	quad5->Matrial = 2;
-	quad5->Color = glm::vec3(0.5, 0.1, 0.5);
+	quad5->Color = glm::vec3(0.0, 0.5, 0.0);
 	partList->PartList.push_back(quad5);
 	partList->modelList.push_back(trans);
+
 
 	render.setRenderQueue(partList);
 }
