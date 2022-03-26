@@ -301,7 +301,7 @@ bool LambertianScatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scatter
 }
 //金属pbr Matrial=3
 bool MetalScatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered) {
-	float fuzz=0.5;
+	float fuzz=0.9;
 	vec3 reflected = reflect(normalize(ray.direction), rec.normal);
 	scattered.orign = rec.hitPoint;
 	scattered.direction = reflected + fuzz * SampleHemisphere();
@@ -326,10 +326,10 @@ vec3 traceRay(Ray inputRay, vec3 Color) {
 	vec3 color, outColor = Color, history = vec3(1, 1, 1);
 	outColor=vec3(0,0,0);
 	nowTracer.ray = inputRay;
-	nowTracer.deep = 5;//深度
+	//nowTracer.deep = 5;
 	queue[0] = nowTracer;
 	float pdf = 1.0 / (2.0 * PI);// 半球均匀采样概率密度
-	for(int i=0;i<2;i++){
+	for(int i=0;i<10;i++){//深度
 		if(searchHit(nowTracer.ray, rec)){
 			if(Scatter(nowTracer.ray, rec, color, outray)){
 				history = (history * (color));
@@ -369,17 +369,17 @@ void main(){
 		ray.direction = toNormalHemisphere(SampleHemisphere(),bb);
 		ray.orign = pp;
 		HitResult rec;
-		if(searchHit(ray,rec)) nColor=traceRay(ray, color)+color;
+		if(searchHit(ray,rec)) nColor=traceRay(ray, color);
 		else nColor = vec3(0, 0, 0);
 		//nColor=traceRay(ray, color)+color;
 	}
 	vec4 lastColor = vec4(texture(LastColor, texcoords).rgb, 1.0);
 	//if(frameCounter!=100) FragColor = lastColor;
 	//else FragColor = vec4(0.5,0,0,1);
-	FragColor = mix(lastColor, vec4(nColor, 1.0), 1.0/float(frameCounter));
-	//FragColor = lastColor + vec4(nColor, 1.0)*0.1;
+	//FragColor = mix(lastColor, vec4(nColor, 1.0), 1.0/float(frameCounter));
+	FragColor = lastColor + vec4(nColor, 1.0)*0.05;
 	//FragColor = pow(FragColor, vec4(1.0/2.2));
-	if(frameCounter == 2) FragColor = vec4(nColor,1.0);
+	//if(frameCounter == 2) FragColor = vec4(nColor,1.0);
 	//else FragColor = lastColor;
 
 
