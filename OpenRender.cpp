@@ -158,6 +158,7 @@ void OpenRender::Draw(std::shared_ptr<BasePartList> partlist,Shader shader)
     drawShader.use();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glActiveTexture(GL_TEXTURE6);
+    drawShader.setFloat("exposure", 1.f);
     glBindTexture(GL_TEXTURE_2D, gLastColor);
     quad->CreatVAO();
     quad->Draw();
