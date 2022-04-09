@@ -162,12 +162,12 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='OpenGLrelease|Win32'">
     <Link>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='OpenGLrelease|x64'">
     <Link>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc142-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -185,8 +185,14 @@
     <ClInclude Include="BasePartList.h" />
     <ClInclude Include="Bvh.h" />
     <ClInclude Include="camera.h" />
-    <ClInclude Include="mesh.h" />
-    <ClInclude Include="model.h" />
+    <ClInclude Include="mesh.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='OpenGLrelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='OpenGLrelease|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="model.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='OpenGLrelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='OpenGLrelease|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="OpenRender.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="shader.h" />
@@ -204,6 +210,7 @@
       <FileType>Document</FileType>
     </None>
     <None Include="shader\RayTrace1.vs" />
+    <None Include="shader\RayTrace_Pdf.fs" />
     <None Include="shader\test.fs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

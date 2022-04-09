@@ -103,5 +103,8 @@
     <None Include="shader\Draw.vs">
       <Filter>shader</Filter>
     </None>
+    <None Include="shader\RayTrace_Pdf.fs">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
