@@ -50,7 +50,6 @@ void BasePart::CreatVAO() {
 
 void BasePart::Draw()
 {
-        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLE_STRIP, indexCount, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);

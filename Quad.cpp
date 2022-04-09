@@ -11,7 +11,7 @@ void Quad::Creat()
     };
     for (int i = 0; i < 20; i=i+5) {
         positions.push_back(glm::vec3(quadVertices[i], quadVertices[i + 1], quadVertices[i + 2]));
-        normals.push_back(glm::vec3(quadVertices[i], quadVertices[i + 1], quadVertices[i + 2]));
+        normals.push_back(glm::vec3(0, 0, 1));
         uv.push_back(glm::vec2(quadVertices[i + 3], quadVertices[i + 4]));
     }
     indices.clear();

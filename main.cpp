@@ -20,16 +20,17 @@ void setQueue(OpenRender &render) {
 	sphere1 = make_shared<Sphere>();
 	sphere1->Creat();
 	sphere1->setTexture("texture/Earth.jpg");
-	sphere1->Matrial = 3;
-	sphere1->Color = glm::vec3(0.7, 0.7, 0.7);
+	sphere1->Matrial = 2;
+	sphere1->Color = glm::vec3(1, 1, 1);
 	shared_ptr<BasePartList>partList = make_shared<BasePartList>();
 	partList->PartList.push_back(sphere1);
 	partList->modelList.push_back(trans);
 
 	trans = glm::mat4(1.0f);
-	trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
-	trans = glm::translate(trans, glm::vec3(0.0f, 2.f, -5.f));
+	
+	trans = glm::translate(trans, glm::vec3(0.0f, 1.f, -3.f));
 	trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
+	trans = glm::scale(trans, glm::vec3(0.25, 0.25f, 0.25));
 	shared_ptr<BasePart> quad1 = make_shared<Quad>();
 	quad1->Creat();
 	quad1->Matrial = 4;//光源

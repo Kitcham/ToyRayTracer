@@ -47,6 +47,7 @@ uniform int frameCounter;
 uniform int width;
 uniform int height;
 uniform int numTri;//三角形数量
+uniform vec3 eye;
 //uniform samplerBuffer TriangleList;//纹理Buffer,三角形集合
 uniform samplerBuffer BVHList;//BVH数组集合
 uniform sampler2D position;
@@ -272,9 +273,9 @@ float reflectance(float cosine, float ref_idx) {
 }
 //绝缘体pbr Matrial=1
 bool DielectricScatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered) {
-	float ir=1.5;
-	//Color=vec3(1.0, 1.0, 1.0);
-	Color = rec.Color;
+	float ir=1.8;
+	Color=vec3(1.0, 1.0, 1.0);
+	//Color = rec.Color;
 	float refraction_radio = rec.frontFace ? (1.0 / ir) : ir;
 	vec3 unit_direction = normalize(ray.direction);
 	float cos_theta = min(dot(-unit_direction,rec.normal), 1.0);
@@ -301,10 +302,10 @@ bool LambertianScatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scatter
 }
 //金属pbr Matrial=3
 bool MetalScatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered) {
-	float fuzz=0.9;
+	float fuzz=0.1;
 	vec3 reflected = reflect(normalize(ray.direction), rec.normal);
 	scattered.orign = rec.hitPoint;
-	scattered.direction = reflected + fuzz * SampleHemisphere();
+	scattered.direction = reflected + fuzz * toNormalHemisphere(SampleHemisphere(), rec.normal);
 	Color = rec.Color;
 	return (dot(scattered.direction, rec.normal) > 0);
 }
@@ -323,22 +324,30 @@ vec3 traceRay(Ray inputRay, vec3 Color) {
 
 	HitResult rec;
 	Ray outray;
-	vec3 color, outColor = Color, history = vec3(1, 1, 1);
+	vec3 color, outColor = Color, history = Color;
 	outColor=vec3(0,0,0);
 	nowTracer.ray = inputRay;
 	//nowTracer.deep = 5;
 	queue[0] = nowTracer;
 	float pdf = 1.0 / (2.0 * PI);// 半球均匀采样概率密度
-	for(int i=0;i<10;i++){//深度
+	float prob = 0.8, p;
+	for(int i=0;i<50;i++){//深度
+		p = rand();
+//		p=1.0;
+		if(p>prob){
+			break;
+		}
 		if(searchHit(nowTracer.ray, rec)){
-			if(Scatter(nowTracer.ray, rec, color, outray)){
-				history = (history * (color));
-				nowTracer.ray = outray;
-			}
 			if(rec.Matrial == 4){
-				outColor = history * color;
+				outColor = history * rec.Color/prob ;
+				//FragColor = vec4(outColor,1.0);
 				break;
 			}
+			if(Scatter(nowTracer.ray, rec, color, outray)){
+				history = (history * (color/prob));
+				nowTracer.ray = outray;
+			}
+
 		}else return outColor;
 	}
 	return outColor;
@@ -365,23 +374,33 @@ void main(){
 	vec3 bb = texture(normal,texcoords).rgb;
 	vec3 pp = texture(position, texcoords).rgb;
 	vec3 color = texture(gColor, texcoords).rgb, nColor;
+	vec3 eyeTopos = eye - pp;
+	//if(dot(eyeTopos,bb)<0){bb=-bb;}
 	if(bb != vec3(0,0,0)){
-		ray.direction = toNormalHemisphere(SampleHemisphere(),bb);
-		ray.orign = pp;
+		//ray.direction = toNormalHemisphere(SampleHemisphere(),bb);
+		//ray.origin = pp;
+		ray.direction = -eyeTopos;
+		ray.orign = eye;
 		HitResult rec;
-		if(searchHit(ray,rec)) nColor=traceRay(ray, color);
+		if(searchHit(ray,rec)){
+			if(rec.Matrial==2){
+				ray.direction = toNormalHemisphere(SampleHemisphere(),rec.normal);
+				ray.orign = rec.hitPoint;
+			}
+			nColor=traceRay(ray, color);
+		}
 		else nColor = vec3(0, 0, 0);
-		//nColor=traceRay(ray, color)+color;
 	}
 	vec4 lastColor = vec4(texture(LastColor, texcoords).rgb, 1.0);
 	//if(frameCounter!=100) FragColor = lastColor;
 	//else FragColor = vec4(0.5,0,0,1);
 	//FragColor = mix(lastColor, vec4(nColor, 1.0), 1.0/float(frameCounter));
-	FragColor = lastColor + vec4(nColor, 1.0)*0.05;
+	FragColor = lastColor + vec4(nColor, 1.0)*0.01;
 	//FragColor = pow(FragColor, vec4(1.0/2.2));
-	//if(frameCounter == 2) FragColor = vec4(nColor,1.0);
+	if(frameCounter == 2) FragColor = vec4(nColor,1.0)*0.01;
 	//else FragColor = lastColor;
-
+	//if(dot(eyeTopos,bb)<0) FragColor = vec4(0.5,0,0,1);
+	//FragColor = vec4(nColor,1.0);
 
 }
 
