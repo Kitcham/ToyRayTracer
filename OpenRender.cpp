@@ -32,7 +32,8 @@ OpenRender::OpenRender(Camera camera1, glm::mat4 projection1) {
     
 
     //延迟渲染shader
-    Shader shader("shader/deffered.vs", "shader/RayTrace1.fs");
+    //Shader shader("shader/deffered.vs", "shader/RayTrace1.fs");
+    Shader shader("shader/deffered.vs", "shader/RayTrace_Pdf.fs");
     defferedShader = shader;
     Shader shader1("shader/Draw.vs", "shader/Draw.fs");
     drawShader = shader1;
@@ -81,14 +82,6 @@ OpenRender::OpenRender(Camera camera1, glm::mat4 projection1) {
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gLastColor, 0);
     GLuint attachments1 = GL_COLOR_ATTACHMENT0;
     glDrawBuffer(attachments1);
-    // - Create and attach depth buffer (renderbuffer)
-    //glGenRenderbuffers(1, &rbo1);
-    //glBindRenderbuffer(GL_RENDERBUFFER, rbo1);
-    //glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
-    //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo1);
-    //// - Finally check if framebuffer is complete
-    //if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    //    std::cout << "Framebuffer not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     defferedShader.use();
@@ -98,6 +91,7 @@ OpenRender::OpenRender(Camera camera1, glm::mat4 projection1) {
     defferedShader.setInt("TriangleList", 3);
     defferedShader.setInt("BVHList", 4);
     defferedShader.setInt("LastColor", 5);
+
 
     drawShader.use();
     drawShader.setInt("drawColor", 6);
@@ -142,8 +136,8 @@ void OpenRender::Draw(std::shared_ptr<BasePartList> partlist,Shader shader)
         defferedShader.setInt("width", SCR_WIDTH);
         defferedShader.setInt("height", SCR_HEIGHT);
         defferedShader.setInt("numTri", partlist->bvh->TriNum);
-
-
+        defferedShader.setVec3("eye", camera.Position);
+        partlist->LoadLight(defferedShader);
         glActiveTexture(GL_TEXTURE5);
         glBindTexture(GL_TEXTURE_2D, gLastColor);
         //if(i==0) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

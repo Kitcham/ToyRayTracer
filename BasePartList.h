@@ -5,19 +5,25 @@
 */
 #pragma once
 #include "BasePart.h"
-#include "shader.h"
 #include "camera.h"
 #include <glm/glm.hpp>
 #include <vector>
+#include "shader.h"
 class Bvh;
 class BasePartList
 {
+	struct LightXZ {
+		float x0, x1, z0, z1, y;
+		int flag;
+	};
 public:
 	BasePartList(){}
 	void Draw(Shader shader,Camera camera, glm::mat4 projection);
+	void LoadLight(Shader shader);
 public:
 	std::vector<glm::mat4>modelList;
 	std::vector<std::shared_ptr<BasePart> >PartList;
 	std::shared_ptr<Bvh> bvh;
+	LightXZ Light;
 };
 
