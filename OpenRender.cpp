@@ -20,6 +20,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 int init();
 GLFWwindow* window;
+bool movingMouse = false;
+bool pressingKey = false;
 
 OpenRender::OpenRender(Camera camera1, glm::mat4 projection1) {
     init();//OpenGL的杂七杂八初始化
@@ -171,6 +173,15 @@ int OpenRender::Loop()
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     Shader rayTrac("shader/RayTrace1.vs", "shader/deffered.fs");
     while (!glfwWindowShouldClose(window)) {
+        if (movingMouse || pressingKey)
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, lastColorBuffer);
+            glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            movingMouse = false;
+            pressingKey = false;
+        }
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
@@ -217,16 +228,28 @@ void processInput(GLFWwindow* window)
 {
     // Camera controls
     if (keys[GLFW_KEY_W])
+    {
+        pressingKey = true;
         camera.ProcessKeyboard(FORWARD, deltaTime);
+    }   
     if (keys[GLFW_KEY_S])
+    {
+        pressingKey = true;
         camera.ProcessKeyboard(BACKWARD, deltaTime);
+    }
     if (keys[GLFW_KEY_A])
+    {
+        pressingKey = true;
         camera.ProcessKeyboard(LEFT, deltaTime);
+    } 
     if (keys[GLFW_KEY_D])
+    {
         camera.ProcessKeyboard(RIGHT, deltaTime);
+    }
 
     if (keys[GLFW_KEY_SPACE] && !keysPressed[GLFW_KEY_SPACE])
     {
+        pressingKey = true;
         hdr = !hdr;
         keysPressed[GLFW_KEY_SPACE] = true;
     }
@@ -242,14 +265,22 @@ void processInput(GLFWwindow* window)
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    {
+        pressingKey = true;
         glfwSetWindowShouldClose(window, GL_TRUE);
-
+    }
+    
     if (key >= 0 && key <= 1024)
     {
         if (action == GLFW_PRESS)
+        {
+            pressingKey = true;
             keys[key] = true;
+        }
+            
         else if (action == GLFW_RELEASE)
         {
+            pressingKey = true;
             keys[key] = false;
             keysPressed[key] = false;
         }
@@ -275,6 +306,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
         firstMouse = false;
     }
 
+    movingMouse = true;
+
     float xoffset = xpos - lastX;
     float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
 
@@ -288,5 +321,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
+    movingMouse = true;
     camera.ProcessMouseScroll(yoffset);
 }
