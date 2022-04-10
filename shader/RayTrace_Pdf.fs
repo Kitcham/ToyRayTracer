@@ -393,7 +393,7 @@ float LambertianScatter_Pdf(Ray ray, HitResult rec, Ray scattered ) {
 }
 //金属pbr Matrial=3
 bool MetalScatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered, out scatterRecord srec) {
-	float fuzz=0.5;
+	float fuzz=0;
 	vec3 reflected = reflect(normalize(ray.direction), rec.normal);
 	srec.specularRay.origin = rec.hitPoint;
 	srec.specularRay.direction = reflected + fuzz * SampleHemisphere();
@@ -423,8 +423,8 @@ vec3 traceRay(Ray inputRay, vec3 Color) {
 	vec3 color, outColor = Color, history = Color;
 	outColor=vec3(0,0,0);
 	nowTracer.ray = inputRay;
-	float prob = 0.8, p;
-	for(int i=0;i<25;i++){//深度
+	float prob = 1, p;
+	for(int i=0;i<10;i++){//深度
 		p=rand();
 		if(p>prob){
 			break;
@@ -433,7 +433,6 @@ vec3 traceRay(Ray inputRay, vec3 Color) {
 			scatterRecord srec;
 			if(rec.Matrial == 4){
 				outColor = history * rec.Color/prob;
-				//if(i==1) FragColor = vec4(outColor,1.0);
 				break;
 			}
 			Scatter(nowTracer.ray, rec, color, outray, srec);
@@ -458,9 +457,7 @@ vec3 traceRay(Ray inputRay, vec3 Color) {
 			pdf_val = (cosine<=0 ? 0 : cosine / PI) * 0.5;	
 			pdf_val += light_pdf(rec.hitPoint, scattered.direction) * 0.5;
 			history = history * srec.attention * LambertianScatter_Pdf(nowTracer.ray, rec, scattered)/pdf_val/prob;
-			//if(i==0) FragColor = vec4(history,1.0);
 			nowTracer.ray = scattered;
-			
 		}else return outColor;
 	}
 	return outColor;

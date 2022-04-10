@@ -20,21 +20,28 @@ void setQueue(OpenRender &render) {
 	sphere1 = make_shared<Sphere>();
 	sphere1->Creat();
 	sphere1->setTexture("texture/Earth.jpg");
-	sphere1->Matrial = 2;
-	sphere1->Color = glm::vec3(1, 1, 1);
+	sphere1->Matrial = 3;
+	sphere1->Color = glm::vec3(10, 10, 10);
 	shared_ptr<BasePartList>partList = make_shared<BasePartList>();
 	partList->PartList.push_back(sphere1);
 	partList->modelList.push_back(trans);
+	trans = glm::mat4(1.0f);//斜面
+	trans = glm::rotate(trans, glm::radians(30.0f), glm::vec3(0, 1, 0));
+	trans = glm::translate(trans, glm::vec3(0.0, 0, -3));
+	trans = glm::scale(trans, glm::vec3(0.5, 0.5f, 0.5));
+	shared_ptr<BasePart> quad = make_shared<Quad>();
+	quad->Creat(); quad->Matrial = 3;quad->Color= glm::vec3(0.8, 0.85, 0.88);
+	//partList->PartList.push_back(quad);
+	//partList->modelList.push_back(trans);
 
 	trans = glm::mat4(1.0f);
-	
 	trans = glm::translate(trans, glm::vec3(0.0f, 1.f, -3.f));
 	trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
 	trans = glm::scale(trans, glm::vec3(0.25, 0.25f, 0.25));
 	shared_ptr<BasePart> quad1 = make_shared<Quad>();
 	quad1->Creat();
 	quad1->Matrial = 4;//光源
-	quad1->Color = glm::vec3(1, 1, 1);
+	quad1->Color = glm::vec3(17, 17, 17);
 	partList->PartList.push_back(quad1);
 	partList->modelList.push_back(trans);
 
