@@ -1,5 +1,5 @@
 /*
-生成一个平面，用于平面光源、Gbuffer写入
+鐢熸垚涓�涓钩闈紝鐢ㄤ簬骞抽潰鍏夋簮銆丟buffer鍐欏叆
 */
 #pragma once
 #include "BasePart.h"
@@ -7,6 +7,9 @@ class Quad :
     public BasePart
 {
 public:
+    Quad(MatrialType matrial, glm::vec3 color) :BasePart(matrial, color) {
+        Creat();
+    }
     Quad() = default;
     virtual void Creat();
 };

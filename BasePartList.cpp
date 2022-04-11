@@ -41,3 +41,18 @@ void BasePartList::LoadLight(Shader shader)
     shader.setFloat("Light.y", Light.y);
 }
 
+void BasePartList::Add(std::shared_ptr<BasePart> basePart, glm::mat4 model)
+{
+    PartList.push_back(basePart);
+    modelList.push_back(model);
+}
+
+void BasePartList::Add(std::vector<std::shared_ptr<BasePart>> basePart, glm::mat4 model)
+{
+    for (auto i : basePart) {
+        PartList.push_back(i);
+        modelList.push_back(model);
+    }
+
+}
+

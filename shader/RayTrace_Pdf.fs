@@ -416,15 +416,15 @@ bool Scatter_Pdf(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered){
 
 vec3 traceRay(Ray inputRay, vec3 Color) {
 	int stackPos = 0;
-	tracer queue[64], nowTracer;
+	tracer nowTracer;
 
 	HitResult rec;
 	Ray outray;
 	vec3 color, outColor = Color, history = Color;
 	outColor=vec3(0,0,0);
 	nowTracer.ray = inputRay;
-	float prob = 1, p;
-	for(int i=0;i<10;i++){//深度
+	float prob = 0.8, p;
+	for(int i=0;i<25;i++){//深度
 		p=rand();
 		if(p>prob){
 			break;

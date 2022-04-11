@@ -7,7 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "shader.h"
-
+#include "BasePart.h"
 #include <string>
 #include <vector>
 using namespace std;
@@ -27,58 +27,63 @@ struct Vertex {
 
 struct Texture {
     unsigned int id;
-    string type;//¾µÃæ¡¢Âş·´Éä
+    string type;//é•œé¢ã€æ¼«åå°„
     string path;
 };
-
-class Mesh {
+class Mesh :public BasePart{
 public:
     // mesh Data
-    vector<Vertex>       vertices;
-    vector<unsigned int> indices;
+    //vector<Vertex>       vertices;
+    //vector<unsigned int> indices;
     vector<Texture>      textures;
-    unsigned int VAO;
+    //unsigned int VAO;
 
-    // ¹¹Ôìº¯Êı
-    Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures){
-        this->vertices = vertices;
+    // æ„é€ å‡½æ•°
+    Mesh(vector<glm::vec3> pos, vector<glm::vec2>uv, vector<glm::vec3>normals, vector<unsigned int> indices, int Matrial, glm::vec3 Color, vector<Texture> textures) {
+        this->positions = pos;
+        this->uv = uv;
+        this->normals = normals;
         this->indices = indices;
+        this->Matrial = Matrial;
+        this->Color = Color;
         this->textures = textures;
         // now that we have all the required data, set the vertex buffers and its attribute pointers.
-        setupMesh();
+        CreatVAO();
     }
+    virtual void Creat() {
 
+    }
     // render the mesh
-    void Draw(Shader& shader)
+    virtual void Draw()
     {
         // bind appropriate textures
-        unsigned int diffuseNr = 1;
-        unsigned int specularNr = 1;
-        unsigned int normalNr = 1;
-        unsigned int heightNr = 1;
-        for (unsigned int i = 0; i < textures.size(); i++)
-        {
-            glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
-            // retrieve texture number (the N in diffuse_textureN)
-            string number;
-            string name = textures[i].type;
-            if (name == "texture_diffuse")
-                number = std::to_string(diffuseNr++);
-            else if (name == "texture_specular")
-                number = std::to_string(specularNr++); // transfer unsigned int to stream
-            else if (name == "texture_normal")
-                number = std::to_string(normalNr++); // transfer unsigned int to stream
-            else if (name == "texture_height")
-                number = std::to_string(heightNr++); // transfer unsigned int to stream
+        //unsigned int diffuseNr = 1;
+        //unsigned int specularNr = 1;
+        //unsigned int normalNr = 1;
+        //unsigned int heightNr = 1;
+        //for (unsigned int i = 0; i < textures.size(); i++)
+        //{
+        //    glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+        //    // retrieve texture number (the N in diffuse_textureN)
+        //    string number;
+        //    string name = textures[i].type;
+        //    if (name == "texture_diffuse")
+        //        number = std::to_string(diffuseNr++);
+        //    else if (name == "texture_specular")
+        //        number = std::to_string(specularNr++); // transfer unsigned int to stream
+        //    else if (name == "texture_normal")
+        //        number = std::to_string(normalNr++); // transfer unsigned int to stream
+        //    else if (name == "texture_height")
+        //        number = std::to_string(heightNr++); // transfer unsigned int to stream
 
-            // now set the sampler to the correct texture unit
-            ///cout << textures.size()<< '\n';
-            //glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
-            shader.use();
-            shader.setFloat(("material."+name + number).c_str(), i);
-            // and finally bind the texture
-            glBindTexture(GL_TEXTURE_2D, textures[i].id);
-        }
+        //    // now set the sampler to the correct texture unit
+        //    ///cout << textures.size()<< '\n';
+        //    //glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
+        //    shader.use();
+        //    shader.setFloat(("material."+name + number).c_str(), i);
+        //    // and finally bind the texture
+        //    glBindTexture(GL_TEXTURE_2D, textures[i].id);
+        //}
 
         // draw mesh
         glBindVertexArray(VAO);
@@ -93,7 +98,7 @@ private:
     // render data 
     unsigned int VBO, EBO;
 
-    // initializes all the buffer objects/arrays³õÊ¼»¯
+    // initializes all the buffer objects/arraysåˆå§‹åŒ–
     void setupMesh()
     {
         // create buffers/arrays
@@ -107,7 +112,7 @@ private:
         // A great thing about structs is that their memory layout is sequential for all its items.
         // The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
         // again translates to 3/2 floats which translates to a byte array.
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(Vertex), &positions[0], GL_STATIC_DRAW);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);

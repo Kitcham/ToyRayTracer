@@ -20,6 +20,8 @@ public:
 	BasePartList(){}
 	void Draw(Shader shader,Camera camera, glm::mat4 projection);
 	void LoadLight(Shader shader);
+	void Add(std::shared_ptr<BasePart> basePart, glm::mat4 model);
+	void Add(std::vector<std::shared_ptr<BasePart>> basePart, glm::mat4 model);
 public:
 	std::vector<glm::mat4>modelList;
 	std::vector<std::shared_ptr<BasePart> >PartList;

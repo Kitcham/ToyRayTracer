@@ -8,14 +8,18 @@
 #include <GLFW/glfw3.h>
 #include<vector>
 #include<glm/glm.hpp>
+
+enum MatrialType { Dielectric = 1, Lambertian = 2, Metal = 3, Light = 4 };
 class BasePart
 {
 public:
     BasePart():VAO(0),VBO(0),EBO(0), texture_id(0){}
+    BasePart(MatrialType matrial, glm::vec3 color) :BasePart() {
+        Matrial = matrial, Color = color;
+    }
     void CreatVAO();//图元数据传输到GPU,数据需更新时VAO默认为0
-    void Draw();//简单的画个图
+    virtual void Draw();//简单的画个图
     void setVAO(unsigned int vao);
-    void setTexture(char const* path);
     unsigned int getTexture() { return texture_id; }
     virtual void Creat()=0;
 
@@ -26,12 +30,12 @@ public:
     std::vector<unsigned int> indices;
     glm::vec3 Color;
     int Matrial;
-private:
     unsigned int VAO;
+private:
     unsigned int VBO;
     unsigned int EBO;
     int indexCount;
     unsigned int texture_id;
-
+    
 };
 
