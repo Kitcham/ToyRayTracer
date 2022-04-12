@@ -479,16 +479,10 @@ void main(){
 	vec3 color = texture(gColor, texcoords).rgb, nColor;
 	vec3 eyeTopos = eye - pp;
 	if(bb != vec3(0,0,0)){
-		//ray.direction = toNormalHemisphere(SampleHemisphere(),bb);
-		//ray.origin = pp;
 		ray.direction = -eyeTopos;
 		ray.origin = eye;
 		HitResult rec;
 		if(searchHit(ray,rec)){
-//			if(rec.Matrial==2){
-//				ray.direction = toNormalHemisphere(SampleHemisphere(),rec.normal);
-//				ray.origin = rec.hitPoint;
-//			}
 			nColor=traceRay(ray, rec.Color);
 			if(isnan(nColor.x)||isinf(nColor.x)) nColor.x=0.0;
 			if(isnan(nColor.y)||isinf(nColor.y)) nColor.y=0.0;

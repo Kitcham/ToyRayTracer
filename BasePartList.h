@@ -17,7 +17,14 @@ class BasePartList
 		int flag;
 	};
 public:
-	BasePartList(){}
+	BasePartList(){
+		Light.x0 = 0;
+		Light.x1 = 0;
+		Light.z0 = 0;
+		Light.z1 = 0;
+		Light.y = 0;
+		Light.flag = 0;
+	}
 	void Draw(Shader shader,Camera camera, glm::mat4 projection);
 	void LoadLight(Shader shader);
 	void Add(std::shared_ptr<BasePart> basePart, glm::mat4 model);
