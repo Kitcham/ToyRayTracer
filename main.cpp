@@ -10,21 +10,22 @@
 #include "Quad.h"
 using namespace std;
 
-extern unsigned int SCR_WIDTH = 1600;
+extern unsigned int SCR_WIDTH = 800;
 extern unsigned int SCR_HEIGHT = 900;
 void setQueue(OpenRender &render) {
 	auto Red = glm::vec3(.65, .05, .05);
 	auto White = glm::vec3(.73, .73, .73);
 	auto Green = glm::vec3(.12, .45, .15);
 	auto iron = glm::vec3(0.8, 0.85, 0.88);
+	auto glass = glm::vec3(0.725, 0.71, 0.68);
 
 	glm::mat4 trans = glm::mat4(1.0f);
-	trans = glm::translate(trans, glm::vec3(0.5, -0.5, -3));
+	trans = glm::translate(trans, glm::vec3(0.5, -0.5, -2.5));
 	trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
 	shared_ptr<BasePart> sphere1;
-	sphere1 = make_shared<Sphere>(Dielectric, iron);
+	sphere1 = make_shared<Sphere>(Dielectric, glass);
 	shared_ptr<BasePartList>partList = make_shared<BasePartList>();//球体
-	//partList->Add(sphere1, trans);
+	partList->Add(sphere1, trans);
 
 	trans = glm::mat4(1.0f);
 	trans = glm::translate(trans, glm::vec3(0.0f, 1.01f, -3.f));
@@ -65,10 +66,10 @@ void setQueue(OpenRender &render) {
 
 	trans = glm::mat4(1.0f);
 	trans = glm::scale(trans, glm::vec3(0.25, 0.5, 0.25));
-	trans = glm::translate(trans, glm::vec3(0, -1, -12));
+	trans = glm::translate(trans, glm::vec3(-1.5, -1, -12));
 	trans = glm::rotate(trans, glm::radians(20.0f), glm::vec3(0, 1, 0));
 	Model TestModel("model/test.obj", Metal, iron);
-	//partList->Add(TestModel.meshes, trans);
+	partList->Add(TestModel.meshes, trans);
 
 	render.setRenderQueue(partList);
 }

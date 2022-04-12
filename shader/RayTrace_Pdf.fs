@@ -413,18 +413,15 @@ bool Scatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered, out sc
 bool Scatter_Pdf(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered){
 	return false;
 }
-
 vec3 traceRay(Ray inputRay, vec3 Color) {
-	int stackPos = 0;
 	tracer nowTracer;
-
 	HitResult rec;
 	Ray outray;
 	vec3 color, outColor = Color, history = Color;
 	outColor=vec3(0,0,0);
 	nowTracer.ray = inputRay;
 	float prob = 0.8, p;
-	for(int i=0;i<25;i++){//深度
+	for(int i=0;i<15;i++){//深度
 		p=rand();
 		if(p>prob){
 			break;
@@ -441,13 +438,10 @@ vec3 traceRay(Ray inputRay, vec3 Color) {
 				history = (history * srec.attention/prob);
 				continue;
 			}
-
 			Ray scattered;
 			scattered.origin = rec.hitPoint;
 			if(rand()<0.5){//间接光照采样
 				scattered.direction = generate_pdf(srec.onb);
-				//scattered.direction =  toNormalHemisphere(SampleHemisphere(),rec.normal);
-				//if(i==0) FragColor = vec4(scattered.direction,1.0);
 			}else{//直接光照采样
 				vec3 random_point = vec3(random_double(Light.x0, Light.x1), Light.y, random_double(Light.z0, Light.z1));
 				scattered.direction = random_point - rec.hitPoint;//在光源选取射线目标点，计算方向
@@ -462,7 +456,6 @@ vec3 traceRay(Ray inputRay, vec3 Color) {
 	}
 	return outColor;
 }
-
 void init(){
 
 }
@@ -492,11 +485,14 @@ void main(){
 		ray.origin = eye;
 		HitResult rec;
 		if(searchHit(ray,rec)){
-			if(rec.Matrial==2){
-				ray.direction = toNormalHemisphere(SampleHemisphere(),rec.normal);
-				ray.origin = rec.hitPoint;
-			}
-			nColor=traceRay(ray, color);
+//			if(rec.Matrial==2){
+//				ray.direction = toNormalHemisphere(SampleHemisphere(),rec.normal);
+//				ray.origin = rec.hitPoint;
+//			}
+			nColor=traceRay(ray, rec.Color);
+			if(isnan(nColor.x)||isinf(nColor.x)) nColor.x=0.0;
+			if(isnan(nColor.y)||isinf(nColor.y)) nColor.y=0.0;
+			if(isnan(nColor.z)||isinf(nColor.z)) nColor.z=0.0;
 		}
 		else nColor = vec3(0, 0, 0);
 	}
@@ -505,7 +501,7 @@ void main(){
 	//FragColor = mix(lastColor, vec4(nColor, 1.0), 1.0/float(frameCounter));
 	FragColor = lastColor + vec4(nColor, 1.0)*0.01;
 	if(frameCounter == 2) FragColor = vec4(nColor,1.0)*0.01;
-	//FragColor = vec4(nColor,1.0);
+	//FragColor = vec4(2.0/0,0,0,1.0);
 
 }
 

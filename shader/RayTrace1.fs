@@ -273,7 +273,7 @@ float reflectance(float cosine, float ref_idx) {
 }
 //绝缘体pbr Matrial=1
 bool DielectricScatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered) {
-	float ir=1.8;
+	float ir=1.5;
 	Color=vec3(1.0, 1.0, 1.0);
 	//Color = rec.Color;
 	float refraction_radio = rec.frontFace ? (1.0 / ir) : ir;

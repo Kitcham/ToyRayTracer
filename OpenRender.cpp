@@ -158,7 +158,7 @@ void OpenRender::Draw(std::shared_ptr<BasePartList> partlist,Shader shader)
     glBindTexture(GL_TEXTURE_2D, gLastColor);
     quad->CreatVAO();
     quad->Draw();
-
+    std::cout << frameCounter << '\n';
 }
 
 void OpenRender::setRenderQueue(std::shared_ptr<BasePartList> basepart)
