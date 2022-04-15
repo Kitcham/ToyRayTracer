@@ -60,3 +60,60 @@ aabb Bvh::build(int now, int start, int end)
 
     return surrounding_box(box_left, box_right);
 }
+float aabbSurfaceArea(aabb AABB) {
+    float a, b, c;
+    a = AABB.maximum.x - AABB.minimum.x;
+    b = AABB.maximum.y - AABB.minimum.y;
+    c = AABB.maximum.z - AABB.minimum.z;
+    return (a * b + a * c + b * c) * 2;
+}
+int Bvh::SAH(int now, int start, int end) {
+    aabb TriAABB,surfaceAABB;
+    TriList[start].bounding_box(surfaceAABB);
+    for (auto i = start+1; i < end; i++) {
+        TriList[i].bounding_box(TriAABB);
+        surfaceAABB = surrounding_box(TriAABB, surfaceAABB);
+    }
+    float Sn = aabbSurfaceArea(surfaceAABB);//计算当前三角形集合的aabb体积，相当于光线命中的概率
+    int B = 10;//桶分割次数
+    int minCostCoor = 0, mincostIndex = 0; //最优分割方案，轴和B的值
+    float minCost = std::numeric_limits<float>::infinity(); //最小花费
+    for (int i = 0; i < 3; i++) {
+        switch (i) {
+        case 0:
+            sort(TriList.begin() + start, TriList.begin() + end, box_x_compare);
+            break;
+        case 1:
+            sort(TriList.begin() + start, TriList.begin() + end, box_y_compare);
+            break;
+        case 2:
+            sort(TriList.begin() + start, TriList.begin() + end, box_z_compare);
+            break;
+        }
+
+        for (int j = 1; j < B; j++) {
+            auto miding = start+ ((end-start)*j / B);
+            if (miding - start == 0 || end - miding == 0) continue;
+            aabb leftAABB, rightAABB;
+            leftAABB.maximum = rightAABB.maximum = glm::vec3(-1e8, -1e8, -1e8);
+            leftAABB.minimum = leftAABB.minimum = glm::vec3(1e8, 1e8, 1e8);
+            for (int k = start ; k < miding && k < TriList.size(); k++) {
+                TriList[k].bounding_box(TriAABB);
+                leftAABB = surrounding_box(TriAABB, leftAABB);
+            }
+            for (int k = miding ; k < end && k < TriList.size(); k++) {
+                TriList[k].bounding_box(TriAABB);
+                rightAABB = surrounding_box(TriAABB, rightAABB);
+            }
+            float leftArea = aabbSurfaceArea(leftAABB);
+            float rightArea = aabbSurfaceArea(rightAABB);
+            float cost = 1 + ((miding - start) * rightArea + (end - miding + 1) * leftArea) / Sn;
+            if (cost < minCost) {
+                minCost = cost;
+                mincostIndex = miding;
+                minCostCoor = i;
+            }
+        }
+    }
+    return mincostIndex;
+}

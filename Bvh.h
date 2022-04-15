@@ -108,6 +108,7 @@ public:
 
 	}
 	aabb build(int now, int start, int end);
+	int Bvh::SAH(int now, int start, int end);
 public:
 	std::vector<Triangle> TriList;
 	std::vector<node> BVHList;
