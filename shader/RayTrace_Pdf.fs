@@ -240,6 +240,15 @@ float hitAABB(Ray r, aabb AABB) {
 
     return (t1 >= t0) ? ((t0 > 0.0) ? (t0) : (t1)) : (-1);
 }
+
+//体积烟雾体hit
+bool VolumnHit(Ray ray,out HitResult rec) {
+	
+	
+
+}
+
+
 //BVH搜索
 bool BvhHit(Ray ray,int now,float t_min,float t_max,inout HitResult rec) {
 	int res[1024], nowResult, rightResult, leftResult;
@@ -400,6 +409,18 @@ bool MetalScatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered, o
 	srec.attention = rec.Color;
 	return true;
 }
+
+//绝缘体pbr Matrial=5
+bool IsotropicScatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered, out scatterRecord srec) {
+	srec.isSpecular = false;
+	srec.attention = Color;
+	srec.attention = rec.Color;
+	return true;
+}
+float IsotropicScatter_Pdf(Ray ray, HitResult rec, Ray scattered ) {
+	return 1 / (4 * pi);
+}
+
 bool Scatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered, out scatterRecord srec) {
 	if(rec.Matrial==1) return DielectricScatter(ray, rec, Color, scattered, srec);
 	if(rec.Matrial==2) return LambertianScatter(ray, rec, Color, scattered, srec);
@@ -408,6 +429,7 @@ bool Scatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered, out sc
 		Color = rec.Color;
 		return false;
 	}
+	if(rec.Matrial==5) return IsotropicScatter(ray, rec, Color, scattered, srec);
 }
 bool Scatter_Pdf(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered){
 	return false;
@@ -419,8 +441,8 @@ vec3 traceRay(Ray inputRay, vec3 Color) {
 	vec3 color, outColor = Color, history = Color;
 	outColor=vec3(0,0,0);
 	nowTracer.ray = inputRay;
-	float prob = 1, p;
-	for(int i=0;i<15;i++){//深度
+	float prob = 0.8, p;
+	for(int i=0;i<50;i++){//深度
 //		p=rand();
 //		if(p>prob){
 //			break;
@@ -449,7 +471,14 @@ vec3 traceRay(Ray inputRay, vec3 Color) {
 			float cosine = dot(normalize(scattered.direction), srec.onb.axis[2]);
 			pdf_val = (cosine<=0 ? 0 : cosine / PI) * 0.5;	
 			pdf_val += light_pdf(rec.hitPoint, scattered.direction) * 0.5;
-			history = history * srec.attention * LambertianScatter_Pdf(nowTracer.ray, rec, scattered)/pdf_val/prob;
+			if(rec.Matrial == 5)
+			{
+				history = history * srec.attention * IsotropicScatter_Pdf(nowTracer.ray, rec, scattered)/pdf_val/prob;
+			}
+			else
+			{
+				history = history * srec.attention * LambertianScatter_Pdf(nowTracer.ray, rec, scattered)/pdf_val/prob;
+			}
 			nowTracer.ray = scattered;
 		}else return outColor;
 	}
@@ -494,4 +523,3 @@ void main(){
 	FragColor = lastColor + vec4(nColor, 1.0)*0.01;
 	if(frameCounter == 2) FragColor = vec4(nColor,1.0)*0.01;
 }
-
