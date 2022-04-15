@@ -13,7 +13,7 @@ void BasePartList::Draw(Shader shader, Camera camera, glm::mat4 projection)
 		if (PartList[i]->Matrial == 4 && Light.flag==0) {
                 float x0(1e8 + 7), x1(-1e8 + 7), z0(1e8 + 7), z1(-1e8 + 7);
                 for (int j = 0; j < PartList[i]->positions.size(); j++) {
-                    glm::vec4 v1 = glm::vec4(PartList[i]->positions[j], 1.0) * modelList[i];
+                    glm::vec4 v1 = modelList[i] * glm::vec4(PartList[i]->positions[j], 1.0) ;
                     x0 = std::min(x0, v1.x);
                     x1 = std::max(x1, v1.x);
                     z0 = std::min(z0, v1.z);

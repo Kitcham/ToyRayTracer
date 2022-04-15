@@ -247,7 +247,7 @@ bool BvhHit(Ray ray,int now,float t_min,float t_max,inout HitResult rec) {
 	int point = 0;
 	res[0] = 1;
 	rec.distance1=10000000000000000.0;
-	while(point >= 0){
+	while(point >= 0&&point<1024){
 		nowResult = res[point];
 		point--;
 		nowNode=getBVH(nowResult);
@@ -304,7 +304,6 @@ bool BvhHit(Ray ray,int now,float t_min,float t_max,inout HitResult rec) {
 	return rec.isHit;
 }
 bool searchHit(Ray ray,out HitResult result) {	
-	bool flag=false; 
 	return BvhHit(ray,1,0,t_max,result);
 }
 //cosPDF------------------------------------------------------------
@@ -420,12 +419,12 @@ vec3 traceRay(Ray inputRay, vec3 Color) {
 	vec3 color, outColor = Color, history = Color;
 	outColor=vec3(0,0,0);
 	nowTracer.ray = inputRay;
-	float prob = 0.8, p;
+	float prob = 1, p;
 	for(int i=0;i<15;i++){//深度
-		p=rand();
-		if(p>prob){
-			break;
-		}
+//		p=rand();
+//		if(p>prob){
+//			break;
+//		}
 		if(searchHit(nowTracer.ray, rec)){
 			scatterRecord srec;
 			if(rec.Matrial == 4){
@@ -463,17 +462,17 @@ void main(){
 	init();
 	vec3 LookFrom, LookAt, vup, u, v , w;
 	vup = vec3(0,1,0);
-	LookFrom = vec3(0,0,0.5);
+	LookFrom = eye;
 	LookAt=vec3(0,0,0);
 	w = normalize(LookFrom - LookAt);
 	u = normalize(cross(vup,w));
 	v = cross(w,u);
 
 	
-	vec2 AA = vec2((rand()-0.5)/float(width), (rand()-0.5)/float(height));
+	vec2 AA = vec2(rand(),rand()); 
 	Ray ray;
 	ray.origin = LookFrom;
-	ray.direction = normalize( vec3(pix.xy+AA,0) - LookFrom);
+	ray.direction = normalize( vec3(pix.xy+AA,0.1) - LookFrom);
 	vec3 bb = texture(normal,texcoords).rgb;
 	vec3 pp = texture(position, texcoords).rgb;
 	vec3 color = texture(gColor, texcoords).rgb, nColor;
@@ -491,11 +490,8 @@ void main(){
 		else nColor = vec3(0, 0, 0);
 	}
 	vec4 lastColor = vec4(texture(LastColor, texcoords).rgb, 1.0);
-	//FragColor = vec4(0.5,0,0,1);
 	//FragColor = mix(lastColor, vec4(nColor, 1.0), 1.0/float(frameCounter));
 	FragColor = lastColor + vec4(nColor, 1.0)*0.01;
 	if(frameCounter == 2) FragColor = vec4(nColor,1.0)*0.01;
-	//FragColor = vec4(2.0/0,0,0,1.0);
-
 }
 
