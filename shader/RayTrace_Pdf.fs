@@ -240,18 +240,9 @@ float hitAABB(Ray r, aabb AABB) {
 
     return (t1 >= t0) ? ((t0 > 0.0) ? (t0) : (t1)) : (-1);
 }
-
-//体积烟雾体hit
-bool VolumnHit(Ray ray,out HitResult rec) {
-	
-	
-
-}
-
-
 //BVH搜索
 bool BvhHit(Ray ray,int now,float t_min,float t_max,inout HitResult rec) {
-	int res[1024], nowResult, rightResult, leftResult;
+	int res[128], nowResult, rightResult, leftResult;
 	Node nowNode, RNode, LNode;
 	int point = 0;
 	res[0] = 1;
@@ -344,15 +335,27 @@ vec3 generate_pdf(ONB uvw) {
 	vec3 local = random_cosine_direction();
 	return local.x * uvw.axis[0] + local.y * uvw.axis[1] + local.z * uvw.axis[2];
 }
+bool light_hit(Ray ray, out HitResult rec){//计算直接光照pdf时对射线与光源碰撞的判定
+	float t = (Light.y - ray.origin.y) / ray.direction.y;
+	if(t<0.0001) return false;
+	float x = ray.origin.x + t * ray.direction.x;
+	float z = ray.origin.z + t * ray.direction.z;
+	if(x < Light.x0 || x > Light.x1 || z < Light.z0 || z > Light.z1) return false;
+	vec3 outNormal =  vec3(0, 1, 0);
+	rec.frontFace = dot(ray.direction, outNormal) < 0;
+	rec.normal = rec.frontFace ? outNormal : -outNormal;
+	rec.distance1 = t;
+	return true;
+}
 float light_pdf(vec3 origin, vec3 v) {
 	HitResult rec;
 	Ray ray;
 	ray.origin = origin;
 	ray.direction = v;
-	if(!searchHit(ray,rec)) return 0.0;
+	if(!light_hit(ray, rec)) return 0.0;
 
 	float area = (Light.x1 - Light.x0) * (Light.z1 - Light.z0);//发光面积
-	float distance_squared = v.x*v.x+v.y*v.y+v.z*v.z;
+	float distance_squared = (v.x*v.x+v.y*v.y+v.z*v.z)*rec.distance1*rec.distance1;
 	float cosine = abs(dot(v,rec.normal) / length(v));
 
 	return distance_squared / (cosine * area);
@@ -396,7 +399,6 @@ bool LambertianScatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scatter
 }
 float LambertianScatter_Pdf(Ray ray, HitResult rec, Ray scattered ) {
 	float cosine = dot(rec.normal, normalize(scattered.direction));
-	//if(cosine>0)FragColor = vec4(0,0.7,0,1);
 	return cosine < 0 ? 0 : cosine / PI;
 }
 //金属pbr Matrial=3
@@ -410,15 +412,12 @@ bool MetalScatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered, o
 	return true;
 }
 
-//绝缘体pbr Matrial=5
+//烟雾 各向异性pbr Matrial=5
 bool IsotropicScatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered, out scatterRecord srec) {
 	srec.isSpecular = false;
 	srec.attention = Color;
 	srec.attention = rec.Color;
 	return true;
-}
-float IsotropicScatter_Pdf(Ray ray, HitResult rec, Ray scattered ) {
-	return 1 / (4 * pi);
 }
 
 bool Scatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered, out scatterRecord srec) {
@@ -441,12 +440,9 @@ vec3 traceRay(Ray inputRay, vec3 Color) {
 	vec3 color, outColor = Color, history = Color;
 	outColor=vec3(0,0,0);
 	nowTracer.ray = inputRay;
-	float prob = 0.8, p;
-	for(int i=0;i<50;i++){//深度
-//		p=rand();
-//		if(p>prob){
-//			break;
-//		}
+	int flag=0;
+	float prob = 1, p;
+	for(int i=0;i<15;i++){//深度
 		if(searchHit(nowTracer.ray, rec)){
 			scatterRecord srec;
 			if(rec.Matrial == 4){
@@ -468,17 +464,14 @@ vec3 traceRay(Ray inputRay, vec3 Color) {
 				scattered.direction = random_point - rec.hitPoint;//在光源选取射线目标点，计算方向
 			}
 			float pdf_val;
-			float cosine = dot(normalize(scattered.direction), srec.onb.axis[2]);
-			pdf_val = (cosine<=0 ? 0 : cosine / PI) * 0.5;	
+			if(rec.Matrial==2){
+				float cosine = dot(normalize(scattered.direction), srec.onb.axis[2]);
+				pdf_val = (cosine<=0 ? 0 : cosine / PI) * 0.5;			
+			}else {
+				pdf_val = ( 1 / (4 * PI)) * 0.5;
+			}
 			pdf_val += light_pdf(rec.hitPoint, scattered.direction) * 0.5;
-			if(rec.Matrial == 5)
-			{
-				history = history * srec.attention * IsotropicScatter_Pdf(nowTracer.ray, rec, scattered)/pdf_val/prob;
-			}
-			else
-			{
-				history = history * srec.attention * LambertianScatter_Pdf(nowTracer.ray, rec, scattered)/pdf_val/prob;
-			}
+			history = history * srec.attention * LambertianScatter_Pdf(nowTracer.ray, rec, scattered)/pdf_val/prob;
 			nowTracer.ray = scattered;
 		}else return outColor;
 	}
