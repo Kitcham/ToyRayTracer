@@ -9,7 +9,7 @@
 #include<vector>
 #include<glm/glm.hpp>
 
-enum MatrialType { Dielectric = 1, Lambertian = 2, Metal = 3, Light = 4 };
+enum MatrialType { Dielectric = 1, Lambertian = 2, Metal = 3, Light = 4, Isotropic = 5 };
 class BasePart
 {
 public:

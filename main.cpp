@@ -65,10 +65,10 @@ void setQueue(OpenRender &render) {
 	partList->Add(quad5, trans);
 
 	trans = glm::mat4(1.0f);
+	trans = glm::translate(trans, glm::vec3(-0.5, -0.5, -3));
 	trans = glm::scale(trans, glm::vec3(0.25, 0.5, 0.25));
-	trans = glm::translate(trans, glm::vec3(-1.5, -1, -12));
 	trans = glm::rotate(trans, glm::radians(20.0f), glm::vec3(0, 1, 0));
-	Model TestModel("model/test.obj", Metal, iron);
+	Model TestModel("model/test.obj", Metal, White);
 	partList->Add(TestModel.meshes, trans);
 
 	render.setRenderQueue(partList);

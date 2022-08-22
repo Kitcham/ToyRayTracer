@@ -128,7 +128,9 @@ vec3 SampleHemisphere() {
 // 将向量 v 投影到 N 的法向半球
 vec3 toNormalHemisphere(vec3 v, vec3 N) {
     vec3 helper = vec3(1, 0, 0);
-    if(abs(N.x)>0.999) helper = vec3(0, 0, 1);
+    //if(abs(N.x)>0.999) helper = vec3(0, 0, 1);
+	float tmp = step(0.999,abs(N.x));
+	helper = tmp * vec3(0, 0, 1) + (1 - tmp) * helper;
     vec3 tangent = normalize(cross(N, helper));
     vec3 bitangent = normalize(cross(N, tangent));
     return v.x * tangent + v.y * bitangent + v.z * N;
@@ -247,7 +249,7 @@ bool BvhHit(Ray ray,int now,float t_min,float t_max,inout HitResult rec) {
 	int point = 0;
 	res[0] = 1;
 	rec.distance1=10000000000000000.0;
-	while(point >= 0&&point<1024){
+	while(point >= 0&&point<128){
 		nowResult = res[point];
 		point--;
 		nowNode=getBVH(nowResult);
@@ -415,9 +417,11 @@ bool MetalScatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered, o
 //烟雾 各向异性pbr Matrial=5
 bool IsotropicScatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered, out scatterRecord srec) {
 	srec.isSpecular = false;
-	srec.attention = Color;
 	srec.attention = rec.Color;
 	return true;
+}
+float IsotropicScatter_Pdf(Ray ray, HitResult rec, Ray scattered){
+	return 1.0 / (4.0 * PI);
 }
 
 bool Scatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered, out scatterRecord srec) {
@@ -430,8 +434,9 @@ bool Scatter(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered, out sc
 	}
 	if(rec.Matrial==5) return IsotropicScatter(ray, rec, Color, scattered, srec);
 }
-bool Scatter_Pdf(Ray ray, HitResult rec, inout vec3 Color, out Ray scattered){
-	return false;
+float Scatter_Pdf(Ray ray, HitResult rec, Ray scattered){
+	float tmp = step(float(rec.Matrial),5.0);//if(rec.Matrial<5)
+	return (1 - tmp) * IsotropicScatter_Pdf(ray, rec, scattered) + tmp * LambertianScatter_Pdf(ray, rec, scattered);
 }
 vec3 traceRay(Ray inputRay, vec3 Color) {
 	tracer nowTracer;
@@ -442,7 +447,7 @@ vec3 traceRay(Ray inputRay, vec3 Color) {
 	nowTracer.ray = inputRay;
 	int flag=0;
 	float prob = 1, p;
-	for(int i=0;i<15;i++){//深度
+	for(int i=0;i<25;i++){//深度
 		if(searchHit(nowTracer.ray, rec)){
 			scatterRecord srec;
 			if(rec.Matrial == 4){
@@ -458,7 +463,10 @@ vec3 traceRay(Ray inputRay, vec3 Color) {
 			Ray scattered;
 			scattered.origin = rec.hitPoint;
 			if(rand()<0.5){//间接光照采样
-				scattered.direction = generate_pdf(srec.onb);
+				//if(rec.Matrial == 5) scattered.direction = random_unit_vector();
+				//else scattered.direction = generate_pdf(srec.onb);
+				int tmp = rec.Matrial/5;
+				scattered.direction = float(tmp) * random_unit_vector() + float(1 - tmp) * generate_pdf(srec.onb);
 			}else{//直接光照采样
 				vec3 random_point = vec3(random_double(Light.x0, Light.x1), Light.y, random_double(Light.z0, Light.z1));
 				scattered.direction = random_point - rec.hitPoint;//在光源选取射线目标点，计算方向
@@ -468,10 +476,10 @@ vec3 traceRay(Ray inputRay, vec3 Color) {
 				float cosine = dot(normalize(scattered.direction), srec.onb.axis[2]);
 				pdf_val = (cosine<=0 ? 0 : cosine / PI) * 0.5;			
 			}else {
-				pdf_val = ( 1 / (4 * PI)) * 0.5;
+				pdf_val = ( 1.0 / (4.0 * PI)) * 0.5;
 			}
 			pdf_val += light_pdf(rec.hitPoint, scattered.direction) * 0.5;
-			history = history * srec.attention * LambertianScatter_Pdf(nowTracer.ray, rec, scattered)/pdf_val/prob;
+			history = history * srec.attention * Scatter_Pdf(nowTracer.ray, rec, scattered)/pdf_val/prob;
 			nowTracer.ray = scattered;
 		}else return outColor;
 	}
@@ -491,7 +499,7 @@ void main(){
 	v = cross(w,u);
 
 	
-	vec2 AA = vec2(rand(),rand()); 
+	vec2 AA = vec2(random_double(-0.5,0.5)/width, random_double(-0.5,0.5)/height); 
 	Ray ray;
 	ray.origin = LookFrom;
 	ray.direction = normalize( vec3(pix.xy+AA,0.1) - LookFrom);
@@ -500,8 +508,8 @@ void main(){
 	vec3 color = texture(gColor, texcoords).rgb, nColor;
 	vec3 eyeTopos = eye - pp;
 	if(bb != vec3(0,0,0)){
-		ray.direction = -eyeTopos;
-		ray.origin = eye;
+		//ray.direction = -eyeTopos;
+		//ray.origin = eye;
 		HitResult rec;
 		if(searchHit(ray,rec)){
 			nColor=traceRay(ray, rec.Color);
@@ -515,4 +523,5 @@ void main(){
 	//FragColor = mix(lastColor, vec4(nColor, 1.0), 1.0/float(frameCounter));
 	FragColor = lastColor + vec4(nColor, 1.0)*0.01;
 	if(frameCounter == 2) FragColor = vec4(nColor,1.0)*0.01;
+	//FragColor = vec4(color,1.0);
 }
